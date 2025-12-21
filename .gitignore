@@ -1,0 +1,20 @@
+*.log
+*.pot
+*.pyc
+local_settings.py
+docs/_build
+build/
+dist/
+__pycache__/
+*.egg-info/
+.tox/
+.idea/
+.venv/
+*.python-version
+.coverage*
+*.sw[po]
+.DS_Store
+viessmann_tokens.json
+
+# IDE support
+.vscode
