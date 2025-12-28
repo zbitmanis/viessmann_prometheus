@@ -1,0 +1,145 @@
+config:
+  debug: false
+  installations_fetch: true
+  features_stats_output: './features.json'
+  installations_fetch_period: 86400  
+  installations:
+   id: 3058194
+   gateways: 
+      - id: 7633107126284244
+        devices:
+          - 0 
+  update_config_file: false
+  base_labels:
+    - installations_id: 
+        source: config.installations.id
+    - gateway_id: 
+        source: payload.gatewayId
+    - device_id: 
+        source: payload.deviceId
+
+features:
+  - feature: heating.gas.consumption.summary.dhw
+    include_feature_label: true
+    metric_name: viessmann_heating_gas_consumption_cbm
+    metric_help: 'Viessmann heating gas consumption summary (Cbm) by period.'
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+          source: property.labels.period 
+  - feature: heating.gas.consumption.summary.heating
+    include_feature_label: true
+    metric_name: viessmann_heating_gas_consumption_cbm
+    metric_help: 'Viessmann heating gas consumption summary (Cbm) by period.'
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+         source: rules.period 
+  - feature: heating.power.consumption.summary.heating
+    include_feature_label: true
+    metric_name: viessmann_heating_power_consumption_kwh
+    metric_help: 'Viessmann heating power consumption summary (kWh) by period.'
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+          source: property.labels.period 
+  - feature: heating.power.consumption.summary.dwh
+    include_feature_label: true
+    metric_name: viessmann_heating_power_consumption_kwh
+    metric_help: 'Viessmann heating power consumption summary (kWh) by period.' 
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+        source: rules.period 
+  - feature: heating.heat.production.summary.heating
+    include_feature_label: true
+    metric_name: viessmann_heating_production_consumption_kwh
+    metric_help: 'Viessmann heating production summary (kWh) by period.' 
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+         source: rules.period 
+  - feature: heating.heat.production.summary.heating
+    include_feature_label: true
+    metric_name: viessmann_heating_production_consumption_kwh
+    metric_help: 'Viessmann heating production summary (kWh) by period.' 
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+         source: rules.properties 
+  - feature: heating.sensors.temperature.outside
+    include_feature_label: false
+    metric_name: viessmann_sensors_temperature_out
+    metric_help: 'Viessmann  outside temperature sensors' 
+    properties:
+     - value: value
+    data_key: value
+    feature_labels: [] 
+  - feature: heating.sensors.pressure.supply
+    include_feature_label: false
+    metric_name: viessmann_sensors_preasure
+    metric_help: 'Viessmann presure sensors' 
+    properties:
+     - value: value
+    data_key: value
+    feature_labels: [] 
