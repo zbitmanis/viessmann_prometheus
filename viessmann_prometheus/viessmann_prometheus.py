@@ -4,15 +4,18 @@ FastAPI App to Expose Viessmann OAuth2 Metrics for Prometheus
 
 import os
 from pathlib import Path
+from pprint import pprint
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse, Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from typing import Optional
 
-from .viessmann_oauth import TokenStore, ViessmannOAuthService
+from viessmann_prometheus.collectors import VIESSSMANN_METRICS, ViessmannMetricsService
+from viessmann_prometheus.viessmann_oauth import TokenStore, ViessmannOAuthService
 
 AUTHORIZE_URL = "https://iam.viessmann-climatesolutions.com/idp/v3/authorize"
 TOKEN_URL = "https://iam.viessmann-climatesolutions.com/idp/v3/token"
@@ -26,6 +29,9 @@ LOGIN_URL = os.environ.get("VIESSMANN_LOGIN_URL", "/oauth/login")
 REFRESH_ACCESS_URL = os.environ.get("VIESSMANN_REFRESH_ACCESS_URL", "/oauth/refresh-access")
 SUCCESS_URL = os.environ.get("VIESSMANN_SUCCESS_URL", "/success")
 FAIL_URL = os.environ.get("VIESSMANN_FAIL_URL", "/fail")
+METRICS_URL = os.environ.get("VIESSMANN_METRICS_URL", "/metrics")
+METRICS_CONFIG = os.environ.get("VIESSMANN_METRICS_CONFIG", "./metrics.yaml")
+STATS_FILE = os.environ.get("VIESSMANN_STATS_FILE", "./features.json")
 DEBUG_STATUS_URL = os.environ.get("VIESSMANN_DEBUG_STATUS_URL", "/debug/token/status")
 DEBUG_RAW_URL = os.environ.get("VIESSMANN_DEBUG_RAW_URL", "/debug/token/raw")
 DEBUG_ROUTES_URL = os.environ.get("VIESSMANN_DEBUG_ROUTES_URL", "/debug/routes")
@@ -43,15 +49,31 @@ service = ViessmannOAuthService(
     token_store=TokenStore(TOKEN_STORE_PATH),
 )
 
+
+metrics_service = ViessmannMetricsService(
+    config_path = METRICS_CONFIG, 
+    stats_path=STATS_FILE
+)
+  
+
 @asynccontextmanager
 async def lifespan(viessmann_prometheus: FastAPI):
+    print("Init metrics")
+    
+    VIESSSMANN_METRICS.init_metrics(metrics_service.metrics_rules,metrics_service.config)
+    
+    print("Config:")
+    pprint(metrics_service.config) 
+    print("Rules:")
+    pprint(metrics_service.metrics_rules)
+    
     print("Registered routes based on lifespan:")
     for r in viessmann_prometheus.routes:
         methods = getattr(r, "methods", None)
         print(f"{r.path:40} {methods}")
     yield
 
-viessmann_prometheus = FastAPI(title="Viessmann OAuth Backend", lifespan=lifespan)
+viessmann_prometheus = FastAPI(title="Viessmann Exporter", lifespan=lifespan)
 
 
 
@@ -171,6 +193,18 @@ def show_routes():
 @viessmann_prometheus.get(DEBUG_CONFIG_URL)
 def get_config() :
     return JSONResponse(viessmann_prometheus.state.config)
+
+@viessmann_prometheus.get(METRICS_URL)
+def metrics() :
+    print("Loading feature stats file {}".format(STATS_FILE))
+    metrics_service.update_features_stats()
+    print("Updating metrics")
+  
+    VIESSSMANN_METRICS.update_metrics(metrics_service.last_stats,
+                                    metrics_service.metrics_rules,
+                                    metrics_service.config)
+    
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 def print_routes():
     print("Registered routes:")
