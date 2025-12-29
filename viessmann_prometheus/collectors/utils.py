@@ -1,9 +1,9 @@
 import time
 
-from specs import FeatureSpecs
+from .specs import FeatureSpecs
 
 
-def get_short_feature(feature: str, default = "unknown") -> str:
+def short_feature(feature: str, default = "unknown") -> str:
     """
     Turn:
         heating.power.consumption.summary.dhw -> dhw

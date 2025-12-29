@@ -3,7 +3,7 @@ config:
   installations_fetch: true
   features_stats_output: './features.json'
   installations_fetch_period: 86400  
-  installations:
+  installation:
    id: 3058194
    gateways: 
       - id: 7633107126284244
@@ -11,8 +11,8 @@ config:
           - 0 
   update_config_file: false
   base_labels:
-    - installations_id: 
-        source: config.installations.id
+    - installation_id: 
+        source: config.installation.id
     - gateway_id: 
         source: payload.gatewayId
     - device_id: 
@@ -54,7 +54,7 @@ features:
     data_key: value
     feature_labels:
       - period:
-         source: rules.period 
+         source: property.labels.period 
   - feature: heating.power.consumption.summary.heating
     include_feature_label: true
     metric_name: viessmann_heating_power_consumption_kwh
@@ -72,8 +72,8 @@ features:
     data_key: value
     feature_labels:
       - period:
-          source: property.labels.period 
-  - feature: heating.power.consumption.summary.dwh
+         source: property.labels.period 
+  - feature: heating.power.consumption.summary.dhw
     include_feature_label: true
     metric_name: viessmann_heating_power_consumption_kwh
     metric_help: 'Viessmann heating power consumption summary (kWh) by period.' 
@@ -90,7 +90,25 @@ features:
     data_key: value
     feature_labels:
       - period:
-        source: rules.period 
+          source: property.labels.period  
+  - feature: heating.heat.production.summary.dhw
+    include_feature_label: true
+    metric_name: viessmann_heating_production_consumption_kwh
+    metric_help: 'Viessmann heating production summary (kWh) by period.' 
+    properties:
+     - value: currentDay
+       labels: 
+          period: day
+     - value: currentMonth
+       labels: 
+          period: month
+     - value: currentYear
+       labels: 
+          period: year
+    data_key: value
+    feature_labels:
+      - period:
+         source: property.labels.period  
   - feature: heating.heat.production.summary.heating
     include_feature_label: true
     metric_name: viessmann_heating_production_consumption_kwh
@@ -108,25 +126,7 @@ features:
     data_key: value
     feature_labels:
       - period:
-         source: rules.period 
-  - feature: heating.heat.production.summary.heating
-    include_feature_label: true
-    metric_name: viessmann_heating_production_consumption_kwh
-    metric_help: 'Viessmann heating production summary (kWh) by period.' 
-    properties:
-     - value: currentDay
-       labels: 
-          period: day
-     - value: currentMonth
-       labels: 
-          period: month
-     - value: currentYear
-       labels: 
-          period: year
-    data_key: value
-    feature_labels:
-      - period:
-         source: rules.properties 
+         source: property.labels.period  
   - feature: heating.sensors.temperature.outside
     include_feature_label: false
     metric_name: viessmann_sensors_temperature_out
