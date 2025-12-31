@@ -13,19 +13,23 @@ class ViessmannMetricsService:
     stats_file_path: str
     last_stats: Dict[str,Any]
 
-    def __init__(self, config_path: str, stats_path: str):
+    def __init__(self, config_path: str, stats_path = None):
         self.config_file_path = config_path
-        self.stats_file_path = stats_path
         self.config = self.load_config(self.config_file_path)
         self.metrics_rules = self.load_metric_rules(self.config_file_path)
+        if stats_path is not None: 
+            self.stats_file_path = stats_path
 
-    def load_config(self, path: str) -> Dict[str,MetricConfig]:
+    @staticmethod
+    def load_config(path: str) -> Dict[str,MetricConfig]:
         """
         Load feature → MetricConfig from configuration YAML file.
         """
-        mrresult: dict = {}
         mc: MetricConfig
 
+        if not os.path.exists(path):
+            ValueError('Config file {} does not exists'.format(path))
+        
         with open(path, 'r', encoding='utf-8') as f:
             cfg = yaml.safe_load(f)
 
@@ -46,11 +50,15 @@ class ViessmannMetricsService:
             )
         return mc 
 
-    def load_metric_rules(self, path: str) -> Dict[str,List[MetricRule]]:
+    @staticmethod
+    def load_metric_rules(path: str) -> Dict[str,List[MetricRule]]:
         """
-        Load feature → MetricConfig and MetricRule mapping from YAML.
+        Load MetricRule mapping from YAML config file.
         """
         mrresult: dict = {}
+
+        if not os.path.exists(path):
+            ValueError('Config file {} does not exists'.format(path))
 
         with open(path, 'r', encoding='utf-8') as f:
             cfg = yaml.safe_load(f)

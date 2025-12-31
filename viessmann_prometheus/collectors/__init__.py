@@ -15,14 +15,9 @@ from .metrics import(
  )
 from .metrics_service import ViessmannMetricsService
 
-from .specs import (
-    MetricRule, 
-    MetricConfig
-)
+
 __all__ = [
     "VIESSSMANN_METRICS",
     "ViessmannMetrics",
     "ViessmannMetricsService",
-    "MetricRule",
-    "MetricConfig"
 ]

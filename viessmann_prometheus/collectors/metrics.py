@@ -266,9 +266,7 @@ class ViessmannMetrics:
                                 MetricRule(...properties={'currentDay': 'day'},...
                             """
                             property_item = item_properties.get(mrp_property.get('value'))
-                            print('Item key: {}'.format(key))
-                            pprint(property_item)
-                            # ANCHOR - TBD get value key from mr, adjust value type
+                            # ANCHOR - TBD get value key from metric rules, adjust value type
                             labels:dict = {}
                             values_payload:dict = {}
                             values_payload['config'] = config.to_dict()
@@ -293,8 +291,9 @@ class ViessmannMetrics:
             self._last_dynamic_gauges_count
         self._stats['last_update_time']=tse
         self._stats['time_used_to_process_metrics']=tse-tsb
-        pprint(self._stats)
 
+    def get_stats(self)->Dict[str,Any]:
+        return self._stats
 
 VIESSSMANN_METRICS = ViessmannMetrics()
 """Default  ViessmannMetrics instance to expose single instance of metrics"""

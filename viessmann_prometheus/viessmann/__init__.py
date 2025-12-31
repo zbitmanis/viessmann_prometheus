@@ -8,12 +8,12 @@ Exports:
 __version__ = "0.1.0"
 __author__ = "Andris Zbitkovskis"
 
-from .viessmann_oauth import (
-    TokenStore,
-    ViessmannOAuthService,
-)
+from .oauth import ViessmannOAuthService
+from .client import ViessmannClient
+from .token_store import TokenStore
 
 __all__ = [
     "TokenStore",
     "ViessmannOAuthService",
+    "ViessmannClient"
 ]
