@@ -5,6 +5,7 @@ local_settings.py
 docs/_build
 build/
 dist/
+tokens/
 __pycache__/
 *.egg-info/
 .tox/
