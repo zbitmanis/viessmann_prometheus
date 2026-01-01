@@ -87,24 +87,25 @@ async def poll_loop(stop_event: asyncio.Event) -> None:
     device_id = devices[0]
     while not stop_event.is_set():
         try:
-            if token_store.is_access_expired():
-                at_updated_time = token_store.access_updated_at
-                logger.info(
-                    f'refreshing epired access token issued: {at_updated_time} ttl: {token_store.access_expires_in}')
-                await service.refresh_access_token()
 
-            else: 
-                logger.info(
-                    f'fetching features for installation: {inst_id} gateway: {gateway_serial} device {device_id} token issued: {token_store.access_updated_at}')
-                payload = await client.fetch_features(inst_id = inst_id,
-                                                    gateway_serial = gateway_serial,
-                                                    device_id=device_id)
-                logger.info(
-                    f'Updating metrics from fetched features installation: {inst_id} gateway: {gateway_serial} device {device_id}')
-                VIESSSMANN_METRICS.update_metrics(payload=payload,
-                                              metrics_rules=metrics_service.metrics_rules,
-                                              config=metrics_service.config)
-                logger.info(
+
+            async with token_store._lock:
+                if token_store.is_access_expired():
+                    logger.info(
+                        f'refreshing epired access token issued: {token_store.access_updated_at} ttl: {token_store.access_expires_in}')
+                    await service.refresh_access_token()
+
+            logger.info(
+                f'fetching features for installation: {inst_id} gateway: {gateway_serial} device {device_id} token issued: {token_store.access_updated_at}')
+            payload = await client.fetch_features(inst_id = inst_id,
+                                                gateway_serial = gateway_serial,
+                                                device_id=device_id)
+            logger.info(
+                f'Updating metrics from fetched features installation: {inst_id} gateway: {gateway_serial} device {device_id}')
+            VIESSSMANN_METRICS.update_metrics(payload=payload,
+                                          metrics_rules=metrics_service.metrics_rules,
+                                          config=metrics_service.config)
+            logger.info(
                     f'Metrics updated installation: {inst_id} gateway: {gateway_serial} device {device_id}')
             # ()
         except Exception as E:

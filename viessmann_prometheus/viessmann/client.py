@@ -110,7 +110,7 @@ class ViessmannClient:
         if not at:
             raise ValueError('No access_token stored')
         
-        if not self.token_store.is_access_valid(): 
+        if self.token_store.is_access_expired(): 
             at_time:int = self.token_store.access_updated_at
             at_ttl:int = self.token_store.access_expires_in
             raise ValueError(f'Access token issued at:{at_time} with ttl:{at_ttl} is expired or invalid')

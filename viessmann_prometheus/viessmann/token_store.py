@@ -1,8 +1,9 @@
 
-
+import asyncio
 import json
 import jwt
 import logging
+import sys
 
 from typing import Any, Dict
 from pathlib import Path
@@ -29,26 +30,27 @@ class TokenStore:
     
 
     def __init__(self, path):
+        self._lock = asyncio.Lock()
         if isinstance(path, Path):
             self.path = path
         else:
             self.path = Path(path)
     
     def is_access_expired(self)->bool:
-        result:bool = False 
+        result:bool = True
 
         if self.access_token: 
-            at_decoded: Dict[str,Any]:  = jwt.decode(self.access_token,  
+            at_decoded: dict = jwt.decode(self.access_token,  
                                      options={"verify_signature": False})
-        
-        exp = at_decoded.get("exp")
+            exp = at_decoded.get("exp")
 
-        logger.info(f'verifying access token {self.access_updated_at} - expires: {exp}')
+            logger.info(f'verifying access token {self.access_updated_at} - expires: {exp}')
 
-        if exp is None:
-            raise ValueError("access token does not contains exp claim")
+            if exp is None:
+                raise ValueError("access token does not contains exp claim")
+            
+            result = exp - self.MIN_TOKEN_TTL  < now_ts()
         
-        result = exp - self.MIN_TOKEN_TTL  < now_ts()
 
         return result 
      
