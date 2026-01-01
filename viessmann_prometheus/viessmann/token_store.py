@@ -1,18 +1,32 @@
 
 
 import json
+import jwt
+import logging
 
 from typing import Any, Dict
 from pathlib import Path
+from datetime import datetime, timezone
 from .utils import now_ts
 
+
+logger = logging.getLogger(__name__)
+
+handler = logging.StreamHandler(sys.stdout)
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 class TokenStore:
-    MIN_TOKEN_TTL = 5
+    MIN_TOKEN_TTL = 60
     path: Path
     access_token: str = ''
     access_updated_at: int = 0
     access_expires_in: int = 0 
     refresh_token: str = ''
+    
 
     def __init__(self, path):
         if isinstance(path, Path):
@@ -20,9 +34,23 @@ class TokenStore:
         else:
             self.path = Path(path)
     
-    def is_access_valid(self)->bool:
-        now = now_ts()
-        return  self.access_token and now < (self.access_updated_at+ self.access_expires_in - self.MIN_TOKEN_TTL) 
+    def is_access_expired(self)->bool:
+        result:bool = False 
+
+        if self.access_token: 
+            at_decoded: Dict[str,Any]:  = jwt.decode(self.access_token,  
+                                     options={"verify_signature": False})
+        
+        exp = at_decoded.get("exp")
+
+        logger.info(f'verifying access token {self.access_updated_at} - expires: {exp}')
+
+        if exp is None:
+            raise ValueError("access token does not contains exp claim")
+        
+        result = exp - self.MIN_TOKEN_TTL  < now_ts()
+
+        return result 
      
     def local_refresh(self, tokens: Dict[str,Any])->None:
         """
@@ -35,9 +63,11 @@ class TokenStore:
         access_expires_in = tokens.get('expires_in', 0)
         access_token: str = tokens.get('access_token')
 
+        logger.info(f'initating local access token update {self.access_updated_at}')
+        
         if access_token is not None:
-            if  not self.is_access_valid() and self.access_updated_at < access_updated_at:
-                print(f'updating local access token updated: {access_updated_at} expires:{access_expires_in}')
+            if self.is_access_expired() and self.access_updated_at < access_updated_at:
+                logger.info(f'updating local access token updated: {access_updated_at} expires:{access_expires_in}')
                 self.access_token = access_token
                 self.access_updated_at = access_updated_at
                 self.access_expires_in = access_expires_in

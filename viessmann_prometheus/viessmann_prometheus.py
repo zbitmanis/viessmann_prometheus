@@ -47,6 +47,7 @@ POLL_SECONDS = os.environ.get("VIESSMANN_POLL_SECONDS", 60)
 TOKEN_STORE_PATH = Path(os.environ.get("VIESSMANN_TOKEN_STORE", TOKEN_DIR+"/viessmann_tokens.json"))
 
 #ANCHOR -  normailze logging 
+
 logger = logging.getLogger(__name__)
 
 handler = logging.StreamHandler(sys.stdout)
@@ -86,7 +87,7 @@ async def poll_loop(stop_event: asyncio.Event) -> None:
     device_id = devices[0]
     while not stop_event.is_set():
         try:
-            if not token_store.is_access_valid():
+            if token_store.is_access_expired():
                 at_updated_time = token_store.access_updated_at
                 logger.info(
                     f'refreshing epired access token issued: {at_updated_time} ttl: {token_store.access_expires_in}')
@@ -112,7 +113,7 @@ async def poll_loop(stop_event: asyncio.Event) -> None:
 
         # sleep, but wake early on shutdown
         try:
-            await asyncio.wait_for(stop_event.wait(), timeout=POLL_SECONDS)
+            await asyncio.wait_for(stop_event.wait(), timeout=int(POLL_SECONDS))
         except asyncio.TimeoutError:
             pass
 
