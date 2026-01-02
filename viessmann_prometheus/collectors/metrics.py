@@ -1,13 +1,14 @@
 
-import time
 from typing import Any, Mapping, Dict
+import logging
 
 from prometheus_client import Gauge, Counter
 
 from .specs import MetricRule, MetricConfig
 from .utils import now_ts, short_feature
 
-from pprint import pprint
+
+logger = logging.getLogger(__name__)
 
 
 class ViessmannMetrics:
@@ -218,9 +219,6 @@ class ViessmannMetrics:
             for r in rule:
               length = length + 1  
               self._dynamic_collectable_gauges_count = self._dynamic_collectable_gauges_count + len(r.properties)
-            # print('rules_count: {} len: {}'.format(
-            #     length, self._dynamic_collectable_gauges_count))
-            # pprint(rule)
 
             self._add_gauge(key, rule[0].metric_help,
                             base_labels+feature_labels)
