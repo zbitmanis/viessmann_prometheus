@@ -90,9 +90,9 @@ async def poll_loop(stop_event: asyncio.Event) -> None:
 
 
             async with token_store._lock:
-                if token_store.is_access_expired():
+                if token_store.is_token_expired(token_store.access_token, token_store.access_updated_at):
                     logger.info(
-                        f'refreshing epired access token issued: {token_store.access_updated_at} ttl: {token_store.access_expires_in}')
+                        f'refreshing epired access token issued: {token_store.access_updated_at} ttl: {token_store.access_expires_in} md5: {token_store.md5(token_store.access_token)}')
                     await service.refresh_access_token()
 
             logger.info(
