@@ -24,4 +24,4 @@ COPY viessmann_prometheus/ /app/viessmann_prometheus
 
 EXPOSE 9000
 
-CMD [ "uvicorn", "viessmann_prometheus.viessmann_prometheus:viessmann_prometheus","--host", "0.0.0.0", "--port", "9000", "--log-config /config/logging.yaml"]
+CMD [ "uvicorn", "viessmann_prometheus.viessmann_prometheus:viessmann_prometheus","--host", "0.0.0.0", "--port", "9000", "--log-config", "/config/logging.yaml"]
