@@ -6,11 +6,14 @@ from typing import Any, Dict, Optional, Tuple
 import base64
 import hashlib
 import secrets
+import logging
 import httpx
 
 
 from .token_store import TokenStore
 from .utils import now_ts
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ViessmannOAuthService:

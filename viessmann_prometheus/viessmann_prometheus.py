@@ -19,6 +19,7 @@ from typing import Optional
 
 from viessmann_prometheus.collectors import VIESSSMANN_METRICS, ViessmannMetricsService 
 from viessmann_prometheus.viessmann import TokenStore, ViessmannOAuthService, ViessmannClient
+from .logging_config import setup_logging
 
 AUTHORIZE_URL = "https://iam.viessmann-climatesolutions.com/idp/v3/authorize"
 TOKEN_URL = "https://iam.viessmann-climatesolutions.com/idp/v3/token"
@@ -36,25 +37,18 @@ REFRESH_ACCESS_URL = os.environ.get("VIESSMANN_REFRESH_ACCESS_URL", "/oauth/refr
 SUCCESS_URL = os.environ.get("VIESSMANN_SUCCESS_URL", "/success")
 FAIL_URL = os.environ.get("VIESSMANN_FAIL_URL", "/fail")
 METRICS_URL = os.environ.get("VIESSMANN_METRICS_URL", "/metrics")
-METRICS_CONFIG = Path(os.environ.get("VIESSMANN_METRICS_CONFIG", CONFIG_DIR+"/metrics.yaml"))
+METRICS_CONFIG = os.environ.get("VIESSMANN_METRICS_CONFIG", CONFIG_DIR+"/metrics.yaml")
 STATS_FILE = os.environ.get("VIESSMANN_STATS_FILE", "./features.json")
 DEBUG_STATUS_URL = os.environ.get("VIESSMANN_DEBUG_STATUS_URL", "/debug/token/status")
 DEBUG_RAW_URL = os.environ.get("VIESSMANN_DEBUG_RAW_URL", "/debug/token/raw")
 DEBUG_ROUTES_URL = os.environ.get("VIESSMANN_DEBUG_ROUTES_URL", "/debug/routes")
 DEBUG_CONFIG_URL = os.environ.get("VIESSMANN_DEBUG_CONFIG_URL", "/debug/config")
 POLL_SECONDS = os.environ.get("VIESSMANN_POLL_SECONDS", 60)
+LOGGING_CONFIG = os.environ.get("VIESSMANN_LOGGING_CONFIG", CONFIG_DIR+"/logging.yaml")
 
 TOKEN_STORE_PATH = Path(os.environ.get("VIESSMANN_TOKEN_STORE", TOKEN_DIR+"/viessmann_tokens.json"))
 
-#ANCHOR -  normailze logging 
 logger = logging.getLogger(__name__)
-
-handler = logging.StreamHandler(sys.stdout)
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 token_store=TokenStore(TOKEN_STORE_PATH)
 
@@ -77,48 +71,77 @@ client = ViessmannClient(base_url=API_URL,
                          token_store=token_store
 )
 
+
 async def poll_loop(stop_event: asyncio.Event) -> None:
-    logger.info(f'starting pool loop with timeout: {POLL_SECONDS}')
+    """
+    Loop function to collect features from the Viessmann API server and
+    update Prometheus metrics, delays for POLL_SECONDS till the next iteration 
+    """
+
+    logger.info('starting pool loop with timeout: %s', POLL_SECONDS)
+
     inst_id = metrics_service.config.installation.get('id')
     gateways = metrics_service.config.installation.get('gateways')
-    gateway_serial = gateways[0].get('id')
-    devices = gateways[0].get('devices')
-    device_id = devices[0]
+    
     while not stop_event.is_set():
         try:
-            if not token_store.is_access_valid():
-                at_updated_time = token_store.access_updated_at
-                logger.info(
-                    f'refreshing epired access token issued: {at_updated_time} ttl: {token_store.access_expires_in}')
-                await service.refresh_access_token()
+            async with token_store._lock:
+                if token_store.is_token_expired(token_store.access_token):
+                    logger.info(
+                        'refreshing expired access token issued: %s'
+                        'ttl: %s md5: %s',
+                        token_store.access_updated_at,
+                        token_store.access_expires_in,
+                        token_store.md5(token_store.access_token)
+                        )
+                    await service.refresh_access_token()
 
-            else: 
-                logger.info(
-                    f'fetching features for installation: {inst_id} gateway: {gateway_serial} device {device_id} token issued: {token_store.access_updated_at}')
-                payload = await client.fetch_features(inst_id = inst_id,
-                                                    gateway_serial = gateway_serial,
-                                                    device_id=device_id)
-                logger.info(
-                    f'Updating metrics from fetched features installation: {inst_id} gateway: {gateway_serial} device {device_id}')
-                VIESSSMANN_METRICS.update_metrics(payload=payload,
-                                              metrics_rules=metrics_service.metrics_rules,
-                                              config=metrics_service.config)
-                logger.info(
-                    f'Metrics updated installation: {inst_id} gateway: {gateway_serial} device {device_id}')
-            # ()
-        except Exception as E:
-            # log.exception("Failed to fetch/update Viessmann metrics")
-            logger.error(f'Viessmann metrics fetch and update raised exception: {E}')
 
-        # sleep, but wake early on shutdown
+            for gateway in gateways:
+                gateway_serial = gateway.get('id')
+                devices = gateway.get('devices')
+
+                for device_id in devices:
+                    logger.debug(
+                                'fetching features for installation: %s gateway: %s'
+                                'device %s token issued: %s',
+                                inst_id,
+                                gateway_serial,
+                                device_id,
+                                token_store.access_updated_at)
+                    payload = await client.fetch_features(inst_id = inst_id,
+                                                        gateway_serial = gateway_serial,
+                                                        device_id=device_id)
+                
+                    logger.debug('updating metrics from fetched features'
+                                'installation: %s gateway: %s device %s',
+                                inst_id,
+                                gateway_serial,
+                                device_id)
+                    
+                    VIESSSMANN_METRICS.update_metrics(payload=payload,
+                                                metrics_rules=metrics_service.metrics_rules,
+                                                config=metrics_service.config)
+                    logger.info(
+                            'metrics updated - installation: %s gateway serial: %s device: %s', 
+                            inst_id,
+                            gateway_serial,
+                            device_id)
+        
+        except Exception as e:
+            logger.error('Viessmann metrics fetch and update raised exception: %s',e)
+
+        # sleep for POLL_SECONDS, but wake early on shutdown
         try:
-            await asyncio.wait_for(stop_event.wait(), timeout=POLL_SECONDS)
+            await asyncio.wait_for(stop_event.wait(), timeout=int(POLL_SECONDS))
         except asyncio.TimeoutError:
             pass
 
 @asynccontextmanager
 async def lifespan(viessmann_prometheus: FastAPI):
+    setup_logging(LOGGING_CONFIG)
     logger.info("Initialize token store")
+
     token_store.load()
 
     logger.info("Initializing metrics collection")
@@ -266,14 +289,10 @@ def show_routes():
 def get_config() :
     return JSONResponse(viessmann_prometheus.state.config)
 
+
 @viessmann_prometheus.get(METRICS_URL)
 def metrics() :
     """
     return latest metrics collected by poll_loop function
     """
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
-
-def print_routes():
-    print("Registered routes:")
-    for r in viessmann_prometheus.routes:
-        print(r.path, r.methods)

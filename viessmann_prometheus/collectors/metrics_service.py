@@ -1,10 +1,16 @@
-import os
-import json
-import yaml
 
 from typing import Dict, List, Any 
 
+import os
+import logging
+import json
+import yaml
+
+
 from .specs import MetricRule, MetricConfig
+
+logger = logging.getLogger(__name__)
+
 
 class ViessmannMetricsService:
     config: MetricConfig
