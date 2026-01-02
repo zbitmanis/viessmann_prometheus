@@ -4,6 +4,7 @@ import json
 import jwt
 import logging
 import sys
+import hashlib
 
 from typing import Any, Dict
 from pathlib import Path
@@ -21,7 +22,6 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 class TokenStore:
-    MIN_TOKEN_TTL = 60
     path: Path
     access_token: str = ''
     access_updated_at: int = 0
@@ -35,22 +35,30 @@ class TokenStore:
             self.path = path
         else:
             self.path = Path(path)
-    
-    def is_access_expired(self)->bool:
+
+    @staticmethod
+    def md5(token:str):
+        md5 = hashlib.md5(token.encode('utf-8')).hexdigest()
+        return md5
+
+    def is_access_expired(self, min_ttl: int = 60)->bool:
         result:bool = True
 
-        if self.access_token: 
-            at_decoded: dict = jwt.decode(self.access_token,  
-                                     options={"verify_signature": False})
-            exp = at_decoded.get("exp")
+        token: str = self.access_token
+        updated_at: str = self.access_updated_at
+        md5: str = self.md5(token)
 
-            logger.info(f'verifying access token {self.access_updated_at} - expires: {exp}')
+        if token: 
+            decoded: dict = jwt.decode(token,  
+                                       options={"verify_signature": False})
+            exp = decoded.get("exp")
+
+            logger.info(f'verifying access token issued: {updated_at} md5: {md5} - expires: {exp}')
 
             if exp is None:
                 raise ValueError("access token does not contains exp claim")
             
-            result = exp - self.MIN_TOKEN_TTL  < now_ts()
-        
+            result = exp - min_ttl < now_ts()
 
         return result 
      

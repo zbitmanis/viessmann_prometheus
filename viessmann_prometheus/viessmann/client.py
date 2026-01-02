@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple
 import asyncio
 import logging
 import httpx
+import sys
 
 from .utils import now_ts
 from .token_store import TokenStore
@@ -16,6 +17,16 @@ curl -sS   -H "Authorization: Bearer ${VIESSMANN_ACCESS_TOKEN}"   -H "Accept: ap
 curl -sS   -H "Authorization: Bearer ${VIESSMANN_ACCESS_TOKEN}"   -H "Accept: application/json"   "https://api.viessmann-climatesolutions.com/iot/v1/equipment/installations?includeGateways=true" | jq .
 curl -sS   -H "Authorization: Bearer ${VIESSMANN_ACCESS_TOKEN}"   -H "Accept: application/json"   "https://api.viessmann-climatesolutions.com/iot/v2/equipment/installations" | jq .
 """
+
+logger = logging.getLogger(__name__)
+
+handler = logging.StreamHandler(sys.stdout)
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 class ViessmannClient:
     base_url: str
     token_store: TokenStore
@@ -107,6 +118,7 @@ class ViessmannClient:
 
         at = self.token_store.access_token
         # at = store.get('access_token')
+        logger.debug(f'fetching feaures using key issued at: {self.token_store.access_updated_at} md5: {self.token_store.md5(self.token_store.access_token)}')
         if not at:
             raise ValueError('No access_token stored')
         
