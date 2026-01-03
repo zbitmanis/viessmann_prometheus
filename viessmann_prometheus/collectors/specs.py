@@ -13,14 +13,16 @@ class MetricRule:
     properties: list = field(default_factory=lambda: [])
     feature_labels: list = field(default_factory=lambda: [])
     include_feature_label: bool = True
+    feature_idx: int = -1
     enabled: bool = False
     running: bool = False
     unit: str = ''
     data_key: str = 'value'
 
+
     def to_dict(self) -> dict:
-        result: dict = {};
-        
+        result: dict = {}
+
         result['feature'] = self.feature
         result['metric_name'] = self.metric_name
         result['metric_help'] = self.metric_help
@@ -49,9 +51,9 @@ class MetricConfig:
 
     def to_dict(self) -> dict:
         """
-        Turns MetricConf to dictionary to use for generic labels values       
+        Turns MetricConf to dictionary to use for generic labels values
         """
-        result: dict = {} 
+        result: dict = {}
 
         result['installation'] = self.installation
         result['features_stats_output'] = self.features_stats_output

@@ -1,5 +1,5 @@
 
-from typing import Any, Mapping, Dict
+from typing import Any, Dict, List
 import logging
 
 from prometheus_client import Gauge, Counter
@@ -42,7 +42,7 @@ class ViessmannMetrics:
 
     It is intended to be instantiated once per process and reused as a singleton.
     """
-    VIESSSMANN_INTERNAL_COUNTERS = {
+    VIESSSMANN_INTERNAL_COUNTERS: Dict[str, Any] = {
         'viessmann_api_requests': {
            'metric_help': 'API requests to Viessmann API server',
            'base_labels': ['client_id']
@@ -57,7 +57,7 @@ class ViessmannMetrics:
            'base_labels': ['type']
         }
     }
-    VIESSSMANN_INTERNAL_GAUGES = {
+    VIESSSMANN_INTERNAL_GAUGES: Dict[str, Any] = {
         'viessmann_api_request_duration': {
            'metric_help': 'API request to Viessmann API server duration',
            'base_labels': ['client_id',
@@ -84,7 +84,7 @@ class ViessmannMetrics:
     _dynamic_gauges_count: int
     _dynamic_collectable_gauges_count: int
     _last_dynamic_gauges_count: int
-    _stats: dict
+    _stats: Dict[str, Any]
 
     def __init__(self):
         """
@@ -100,9 +100,6 @@ class ViessmannMetrics:
         self._gauges_count = 0
         self._last_dynamic_gauges_count = 0
         self._stats = {}
-        #self._stats['collected'] = 0
-        #self._stats['uncollectable'] = 0
-        #self._stats['last_update_time'] = 0
 
     def _add_gauge(self, name: str, help: str, labels: list[str]):
         if name not in self._gauges:
@@ -114,29 +111,30 @@ class ViessmannMetrics:
             self._counters_count = self._counters_count + 1
             self._counters[name] = Counter(name, help, labels)
 
-    def get_gauge(self, name: str):
+    def get_gauge(self, name: str) -> Gauge:
+        """
+        Return a registered Prometheus Gauge by name.
+        """
+
         if name not in self._gauges:
-            raise ValueError('Cant find the gauge {}'.format(name))
-        else:
-            return self._gauges.get('name')
+            raise ValueError(f'Cant find the gauge {name}')
+        return self._gauges['name']
 
-    def set_gauge_value(self, name: str, labels: list[str], value):
-        if name in self._gauges:
-            g = _gauges.get('name')
-            g.labels(**labels).set(value)
-        else:
+    def set_gauge_value(self, name: str, labels: Dict[str, str], value: float):
+        """
+        Sets a value to registered Prometheus Gauge by labels.
+        """
+        if name not in self._gauges:
             raise ValueError(f'Cant find the gauge {name} labels {labels}')
+        g = self._gauges['name']
+        g.labels(**labels).set(value)
 
-    def get_value_by_path(self, payload: Dict[str, Any], path: str, default=None):
+    def get_value_by_path(self, payload: Dict[str, Any], path: str, default: str = 'unknown') -> str:
         """
         Get value from nested dict using dot-separated path.
         """
-        # ANCHOR -  Create custom dictionary adding payload, rules and config keys
-        # to gather values from path
-        # source: Mapping[str, Any]
         current = payload
-        #gen_source, gen_path = self.get_value_source(path)
-        
+
         for key in path.split('.'):
             if not isinstance(current, dict):
                 return default
@@ -145,7 +143,7 @@ class ViessmannMetrics:
                 return default
         return current
 
-    def compose_metric_labels(self, payload: Dict[str, Any], rule: MetricRule)->Dict[str,str]:
+    def compose_metric_labels(self, payload: Dict[str, Any], rule: MetricRule) -> Dict[str, str]:
         """
         Compose labels with assigned values for metric
 
@@ -155,30 +153,30 @@ class ViessmannMetrics:
         :return: Dictionary of labels with values
         """
 
-        result: dict = {}
-        base_labels: list =  payload.get('base_labels')
-        feature_labels: list = rule.feature_labels#payload.get('feature_labels')
+        result: Dict[str, Any] = {}
+        base_labels: List[str] = payload.get('base_labels')
+        feature_labels: List[str] = rule.feature_labels
 
         for item in base_labels:
             label = next(iter(item))
-            path = item[label].get('source')
-            value=self.get_value_by_path(payload, path)
-            
+            path = item.get(label)['source']
+            value = self.get_value_by_path(payload, path)
+
             result[label] = value
-        
+
         for item in feature_labels:
             label = next(iter(item))
             path = item[label].get('source')
-            value=self.get_value_by_path(payload, path)
-        
+            value = self.get_value_by_path(payload, path)
+
             result[label] = value
-            
+
         if rule.include_feature_label:
-            result['feature']=short_feature(rule.feature)
+            result['feature'] = short_feature(rule.feature, rule.feature_idx)
 
         return result
 
-    def init_metrics(self, metrics_rules: dict, config: MetricConfig):
+    def init_metrics(self, metrics_rules: Dict[str, List[MetricRule]], config: MetricConfig):
         """
         Iniitilaise metrics from exporter configuration
         """
@@ -201,7 +199,6 @@ class ViessmannMetrics:
             for key, value in item.items():
                 base_labels.append(key)
 
-
         if not isinstance(base_labels, list):
             raise ValueError(f'Invalid base labels in config in {config}')
 
@@ -211,14 +208,14 @@ class ViessmannMetrics:
                 for lkey, lvalue in item.items():
                     feature_labels.append(lkey)
 
-            if(rule[0].include_feature_label):
-                    feature_labels.append('feature')
+            if rule[0].include_feature_label:
+                feature_labels.append('feature')
 
             self._dynamic_gauges_count = self._dynamic_gauges_count + 1
             length = 0
             for r in rule:
-              length = length + 1  
-              self._dynamic_collectable_gauges_count = self._dynamic_collectable_gauges_count + len(r.properties)
+                length = length + 1
+                self._dynamic_collectable_gauges_count = self._dynamic_collectable_gauges_count + len(r.properties)
 
             self._add_gauge(key, rule[0].metric_help,
                             base_labels+feature_labels)
@@ -265,15 +262,15 @@ class ViessmannMetrics:
                             """
                             property_item = item_properties.get(mrp_property.get('value'))
                             # ANCHOR - TBD get value key from metric rules, adjust value type
-                            labels:dict = {}
-                            values_payload:dict = {}
+                            labels: Dict[str, str] = {}
+                            values_payload: Dict[str, Any] = {}
                             values_payload['config'] = config.to_dict()
                             values_payload['base_labels'] = config.base_labels
-                            values_payload['property'] =  mrp_property
+                            values_payload['property'] = mrp_property
                             values_payload['payload'] = item
-                            
-                            labels: dict = self.compose_metric_labels(values_payload,mr)
-                            
+
+                            labels: dict = self.compose_metric_labels(values_payload, mr)
+
                             value = property_item.get('value')
 
                             if value is not None:
@@ -287,11 +284,12 @@ class ViessmannMetrics:
         # ANCHOR - update instead of gauges use metrics with labels - single gauge contain arr of features
         self._stats['uncollectable'] = self._dynamic_collectable_gauges_count - \
             self._last_dynamic_gauges_count
-        self._stats['last_update_time']=tse
-        self._stats['time_used_to_process_metrics']=tse-tsb
+        self._stats['last_update_time'] = tse
+        self._stats['time_used_to_process_metrics'] = tse-tsb
 
-    def get_stats(self)->Dict[str,Any]:
+    def get_stats(self) -> Dict[str, Any]:
         return self._stats
+
 
 VIESSSMANN_METRICS = ViessmannMetrics()
 """Default  ViessmannMetrics instance to expose single instance of metrics"""

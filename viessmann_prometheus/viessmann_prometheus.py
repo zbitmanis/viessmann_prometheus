@@ -17,7 +17,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from typing import Optional
 
-from viessmann_prometheus.collectors import VIESSSMANN_METRICS, ViessmannMetricsService 
+from viessmann_prometheus.collectors import VIESSSMANN_METRICS, ViessmannMetricsService
 from viessmann_prometheus.viessmann import TokenStore, ViessmannOAuthService, ViessmannClient
 from .logging_config import setup_logging
 
@@ -50,7 +50,7 @@ TOKEN_STORE_PATH = Path(os.environ.get("VIESSMANN_TOKEN_STORE", TOKEN_DIR+"/vies
 
 logger = logging.getLogger(__name__)
 
-token_store=TokenStore(TOKEN_STORE_PATH)
+token_store = TokenStore(TOKEN_STORE_PATH)
 
 service = ViessmannOAuthService(
     client_id=CLIENT_ID,
@@ -64,25 +64,24 @@ service = ViessmannOAuthService(
 
 
 metrics_service = ViessmannMetricsService(
-    config_path=METRICS_CONFIG 
+    config_path=METRICS_CONFIG
 )
 
 client = ViessmannClient(base_url=API_URL,
-                         token_store=token_store
-)
+                         token_store=token_store)
 
 
 async def poll_loop(stop_event: asyncio.Event) -> None:
     """
-    Loop function to collect features from the Viessmann API server and
-    update Prometheus metrics, delays for POLL_SECONDS till the next iteration 
+    Loop function to collect features from the Viessmann API
+    and update Prometheus metrics.
     """
 
     logger.info('starting pool loop with timeout: %s', POLL_SECONDS)
 
-    inst_id = metrics_service.config.installation.get('id')
-    gateways = metrics_service.config.installation.get('gateways')
-    
+    inst_id: str = metrics_service.config.installation['id']
+    gateways: List[Dict[str, Any]] = metrics_service.config.installation['gateways']
+
     while not stop_event.is_set():
         try:
             async with token_store._lock:
@@ -96,7 +95,6 @@ async def poll_loop(stop_event: asyncio.Event) -> None:
                         )
                     await service.refresh_access_token()
 
-
             for gateway in gateways:
                 gateway_serial = gateway.get('id')
                 devices = gateway.get('devices')
@@ -109,33 +107,35 @@ async def poll_loop(stop_event: asyncio.Event) -> None:
                                 gateway_serial,
                                 device_id,
                                 token_store.access_updated_at)
-                    payload = await client.fetch_features(inst_id = inst_id,
-                                                        gateway_serial = gateway_serial,
-                                                        device_id=device_id)
-                
+                    payload = await client.fetch_features(inst_id=inst_id,
+                                                          gateway_serial=gateway_serial,
+                                                          device_id=device_id)
+
                     logger.debug('updating metrics from fetched features'
-                                'installation: %s gateway: %s device %s',
-                                inst_id,
-                                gateway_serial,
-                                device_id)
-                    
+                                 'installation: %s gateway: %s device %s',
+                                 inst_id,
+                                 gateway_serial,
+                                 device_id)
+
                     VIESSSMANN_METRICS.update_metrics(payload=payload,
-                                                metrics_rules=metrics_service.metrics_rules,
-                                                config=metrics_service.config)
+                                                      metrics_rules=metrics_service.metrics_rules,
+                                                      config=metrics_service.config)
                     logger.info(
-                            'metrics updated - installation: %s gateway serial: %s device: %s', 
+                            'metrics updated - installation: %s gateway serial: %s device: %s',
                             inst_id,
                             gateway_serial,
                             device_id)
-        
+
         except Exception as e:
-            logger.error('Viessmann metrics fetch and update raised exception: %s',e)
+            logger.error('Viessmann metrics fetch and update raised exception: %s',
+                         e)
 
         # sleep for POLL_SECONDS, but wake early on shutdown
         try:
             await asyncio.wait_for(stop_event.wait(), timeout=int(POLL_SECONDS))
         except asyncio.TimeoutError:
             pass
+
 
 @asynccontextmanager
 async def lifespan(viessmann_prometheus: FastAPI):
@@ -145,12 +145,13 @@ async def lifespan(viessmann_prometheus: FastAPI):
     token_store.load()
 
     logger.info("Initializing metrics collection")
-    
-    VIESSSMANN_METRICS.init_metrics(metrics_service.metrics_rules,metrics_service.config)
-    
-    logger.debug(f'Metrics service configuration: {metrics_service.config}') 
-    logger.debug(f'Metrics service rules: {metrics_service.metrics_rules}') 
-    
+
+    VIESSSMANN_METRICS.init_metrics(metrics_service.metrics_rules,
+                                    metrics_service.config)
+
+    logger.debug(f'Metrics service configuration: {metrics_service.config}')
+    logger.debug(f'Metrics service rules: {metrics_service.metrics_rules}')
+
     logger.info("Registered routes:")
     for r in viessmann_prometheus.routes:
         methods = getattr(r, "methods", None)
@@ -169,7 +170,6 @@ async def lifespan(viessmann_prometheus: FastAPI):
         pass
 
 viessmann_prometheus = FastAPI(title="Viessmann Exporter", lifespan=lifespan)
-
 
 
 @viessmann_prometheus.get("/health")
@@ -220,7 +220,7 @@ async def callback(
     return RedirectResponse(SUCCESS_URL, status_code=302)
 
 
-#ANCHOR - TBD status should be adjusted for status (success||fail) urls
+# ANCHOR - TBD status should be adjusted for status (success||fail) urls
 @viessmann_prometheus.post(REFRESH_ACCESS_URL)
 async def refresh():
     """  Endpoint to iniitate access token refresh
@@ -277,21 +277,22 @@ def viessmann_fail(error: str = "", desc: str = ""):
         status_code=200,
     )
 
+
 @viessmann_prometheus.get(DEBUG_ROUTES_URL)
 def show_routes():
     out = []
     for r in viessmann_prometheus.routes:
-      out.append({"path": r.path, "methods": sorted(getattr(r, "methods", []) or [])})
+        out.append({"path": r.path, "methods": sorted(getattr(r, "methods", []) or [])})
     return JSONResponse(out)
 
 
 @viessmann_prometheus.get(DEBUG_CONFIG_URL)
-def get_config() :
+def get_config():
     return JSONResponse(viessmann_prometheus.state.config)
 
 
 @viessmann_prometheus.get(METRICS_URL)
-def metrics() :
+def metrics():
     """
     return latest metrics collected by poll_loop function
     """
