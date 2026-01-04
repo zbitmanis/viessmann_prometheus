@@ -57,7 +57,7 @@ class ViessmannMetrics:
         },
         'viessmann_collector_data_timestamp': {
             'metric_help': 'Unix timestamp of the last successful metrics refresh',
-            'base_labels': ['request', 'metric']
+            'base_labels': ['request']
         },
     }
 
