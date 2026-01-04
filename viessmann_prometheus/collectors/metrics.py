@@ -57,7 +57,7 @@ class ViessmannMetrics:
         },
         'viessmann_collector_data_timestamp': {
             'metric_help': 'Unix timestamp of the last successful metrics refresh',
-            'base_labels': ['request']
+            'base_labels': ['request', 'metric']
         },
     }
 
@@ -236,11 +236,12 @@ class ViessmannMetrics:
                 for mr in rules:
                     # Filter payload for defined within fetch rules
                     # MetricRule(feature='heating.gas.consumption.summary.dhw' ...
+                    api_ts = iso_to_unix(item.get('timestamp'))
+                    self._gauges['viessmann_collector_data_timestamp'].labels(request='features',
+                                                                                metric=mr.metric_name).set(api_ts)
                     
                     if item.get('feature') == mr.feature:
                         # operate only features defined within fetch rules
-                        if api_ts == 0: 
-                            api_ts = iso_to_unix(item.get('timestamp'))
 
                         g = self._gauges.get(key)
                         item_properties = item.get('properties')
@@ -274,7 +275,6 @@ class ViessmannMetrics:
         msg.labels(request='features', type='uncollectable').set(
             self._last_dynamic_gauges_count-self._last_dynamic_gauges_count)
 
-        self._gauges['viessmann_collector_data_timestamp'].labels(request='features').set(api_ts)
         
 
 
