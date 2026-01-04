@@ -8,12 +8,25 @@ from typing import Any, Dict, Tuple
 import logging
 import httpx
 
+from httpx_metrics.async_metrics import (
+    AsyncRequestsDurationMetric,
+    AsyncTotalRequestsMetric,
+)
+
+from httpx_metrics import AsyncPrometheusTransport
+
 from .utils import now_ts
 from .token_store import TokenStore
 
 logger = logging.getLogger(__name__)
 
-
+metrics_transport = AsyncPrometheusTransport(
+    next_transport=httpx.AsyncHTTPTransport(),
+    metrics=[
+        AsyncRequestsDurationMetric(),
+        AsyncTotalRequestsMetric(),
+    ],
+)
 class ViessmannClient:
     base_url: str
     token_store: TokenStore
@@ -115,7 +128,8 @@ class ViessmannClient:
                                                      device_id=device_id)
 
         async with httpx.AsyncClient(base_url=self.base_url,
-                                     timeout=self.TIMEOUT) as client:
+                                     timeout=self.TIMEOUT,
+                                     transport=metrics_transport) as client:
             r = await client.get(
                 request,
                 headers=headers,

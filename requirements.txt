@@ -4,3 +4,4 @@ uvicorn>=0.38.0
 pyyaml>=6.0.0
 prometheus_client>=0.20
 pyjwt>=2.0
+httpx-metrics >= 0.0.1 
