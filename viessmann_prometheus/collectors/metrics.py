@@ -1,15 +1,17 @@
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 import logging
 
 from prometheus_client import Gauge, Counter
+from time import perf_counter_ns 
 
 from .specs import MetricRule, MetricConfig
-from .utils import now_ts, short_feature
+from .utils import now_ts, short_feature, iso_to_unix
 
+MetricLabelValues = Dict[str, str]
+MetricValues = Tuple[MetricLabelValues,float]
 
 logger = logging.getLogger(__name__)
-
 
 class ViessmannMetrics:
     """
@@ -45,37 +47,18 @@ class ViessmannMetrics:
     VIESSSMANN_INTERNAL_COUNTERS: Dict[str, Any] = {
         'viessmann_api_requests': {
            'metric_help': 'API requests to Viessmann API server',
-           'base_labels': ['client_id']
-        },
-        'viessmann_auth_requests': {
-           'metric_help': 'API requests to Viessmann API server',
-           'base_labels': ['client_id',
-                           'type']
-        },
-        'viessmann_metrics': {
-           'metric_help': 'Metrics stats while processing response',
-           'base_labels': ['type']
+           'base_labels': ['request', 'status_code']
         }
     }
     VIESSSMANN_INTERNAL_GAUGES: Dict[str, Any] = {
-        'viessmann_api_request_duration': {
-           'metric_help': 'API request to Viessmann API server duration',
-           'base_labels': ['client_id',
-                           'type']
+        'viessmann_collector_metrics_stats': {
+           'metric_help': 'Metrics stats while processing response',
+           'base_labels': ['request','type']
         },
-        'viessmann_auth_request_duration': {
-           'metric_help': 'API request for Viessmann OAuth requests',
-           'base_labels': ['client_id',
-                           'endpoint',
-                           'type']
+        'viessmann_collector_data_timestamp': {
+            'metric_help': 'Unix timestamp of the last successful metrics refresh',
+            'base_labels': ['request']
         },
-        'viessmann_collector_processing_duration': {
-           'metric_help': 'Time spent to process collected features from API server',
-           'base_labels': ['installation_id',
-                           'gateway_id',
-                           'device_id',
-                           'operation']
-        }
     }
 
     _gauges: dict[str, Gauge]
@@ -110,6 +93,13 @@ class ViessmannMetrics:
         if name not in self._counters:
             self._counters_count = self._counters_count + 1
             self._counters[name] = Counter(name, help, labels)
+
+    def inc_requests_counter(self, request: str, status_code: int) -> None:
+        """
+         Increase Viessmann API requests counters 
+        """
+        cnt: Counter = self._counters.get('viessmann_api_requests')
+        cnt.labels(request= request, status_code=status_code).inc()
 
     def get_gauge(self, name: str) -> Gauge:
         """
@@ -146,15 +136,10 @@ class ViessmannMetrics:
     def compose_metric_labels(self, payload: Dict[str, Any], rule: MetricRule) -> Dict[str, str]:
         """
         Compose labels with assigned values for metric
-
-        :param payload: Feature data to be used for label values
-        :param metrics_rules:  Metrics rules for labels values
-        :param config: Collector configuration
-        :return: Dictionary of labels with values
         """
 
         result: Dict[str, Any] = {}
-        base_labels: List[str] = payload.get('base_labels')
+        base_labels: List[Dict[str, Any]] = payload.get('base_labels')
         feature_labels: List[str] = rule.feature_labels
 
         for item in base_labels:
@@ -166,7 +151,7 @@ class ViessmannMetrics:
 
         for item in feature_labels:
             label = next(iter(item))
-            path = item[label].get('source')
+            path = item[label].get('source','')
             value = self.get_value_by_path(payload, path)
 
             result[label] = value
@@ -178,28 +163,28 @@ class ViessmannMetrics:
 
     def init_metrics(self, metrics_rules: Dict[str, List[MetricRule]], config: MetricConfig):
         """
-        Iniitilaise metrics from exporter configuration
+        Initialise metrics from exporter configuration
         """
 
         # Add internal viessmann collector Counters
-        for ckey, cvalue in self.VIESSSMANN_INTERNAL_COUNTERS.items():
-            self._add_counter(ckey, cvalue.get('metric_help'), cvalue.get('base_labels'))
+        for mkey, mvalue in self.VIESSSMANN_INTERNAL_COUNTERS.items():
+            self._add_counter(mkey, mvalue.get('metric_help'), mvalue.get('base_labels'))
 
         # Add internal viessmann collector Gauges
-        for gkey, gvalue in self.VIESSSMANN_INTERNAL_GAUGES.items():
-            self._add_gauge(gkey, gvalue.get('metric_help'), gvalue.get('base_labels'))
+        for mkey, mvalue in self.VIESSSMANN_INTERNAL_GAUGES.items():
+            self._add_gauge(mkey, mvalue.get('metric_help'), mvalue.get('base_labels'))
 
         # Add Gauges based on configuration
-        if not isinstance(metrics_rules, dict):
+        if not bool(metrics_rules):
             raise ValueError(f'Invalid Metrics Rules structure in {metrics_rules}')
 
         # Normalize base labels to Prometheus Metrics format, remove labels source definition
-        base_labels = []
+        base_labels: list = []
         for item in config.base_labels:
             for key, value in item.items():
                 base_labels.append(key)
 
-        if not isinstance(base_labels, list):
+        if not bool(base_labels):
             raise ValueError(f'Invalid base labels in config in {config}')
 
         for key, rule in metrics_rules.items():
@@ -226,40 +211,44 @@ class ViessmannMetrics:
         """
         # ANCHOR - TBD add time consumption, collected uncollected metrics for collector feature use stats
 
-        tsb = now_ts()
+        tsb = perf_counter_ns()
         tse = 0
 
         self._last_dynamic_gauges_count = 0
 
-        if not isinstance(metrics_rules, dict):
+        if not bool(metrics_rules):
             raise ValueError(f'Invalid Metrics Rules structure in {metrics_rules}')
 
         base_labels: list = config.base_labels
-        if not isinstance(base_labels, list):
+        if not bool(base_labels):
             raise ValueError(f'Invalid base labels in config in {config}')
 
         # Process payload data, add metrics based on configuration
         self._last_dynamic_gauges_count = 0
 
+        api_ts: int = 0 
+
         for item in payload.get('data', []):
             for key, rules in metrics_rules.items():
-                """ iterate trough metrics defined within dict format
-                    e.g. {'viessmann_heating_gas_consumption_cbm': [MetricRule,MetricRule]}
-                """
+                # iterate trough metrics defined within dict format
+                #    e.g. {'viessmann_heating_gas_consumption_cbm': [MetricRule,MetricRule]}
+                
                 for mr in rules:
-                    """ Filter payload for defined within fetch rules
-                        MetricRule(feature='heating.gas.consumption.summary.dhw' ...
-                    """
+                    # Filter payload for defined within fetch rules
+                    # MetricRule(feature='heating.gas.consumption.summary.dhw' ...
+                    
                     if item.get('feature') == mr.feature:
-                        """ operate only features defined within fetch rules
-                        """
+                        # operate only features defined within fetch rules
+                        if api_ts == 0: 
+                            api_ts = iso_to_unix(item.get('timestamp'))
+
                         g = self._gauges.get(key)
                         item_properties = item.get('properties')
 
                         for mrp_property in mr.properties:
-                            """ iterate trough config payload properties
-                                MetricRule(...properties={'currentDay': 'day'},...
-                            """
+                            # iterate trough config payload properties
+                            # MetricRule(...properties={'currentDay': 'day'},...
+
                             property_item = item_properties.get(mrp_property.get('value'))
                             # ANCHOR - TBD get value key from metric rules, adjust value type
                             labels: Dict[str, str] = {}
@@ -278,17 +267,16 @@ class ViessmannMetrics:
                                 self._last_dynamic_gauges_count = self._last_dynamic_gauges_count + 1
                             else:
                                 raise ValueError('Cant get value for {} : {}'.format(key, mr.feature))
-        tse = now_ts()
+        tse = perf_counter_ns()
+        
+        msg: Gauge = self._gauges['viessmann_collector_metrics_stats']
+        msg.labels(request='features', type='collected').set(self._last_dynamic_gauges_count)
+        msg.labels(request='features', type='uncollectable').set(
+            self._last_dynamic_gauges_count-self._last_dynamic_gauges_count)
 
-        self._stats['collected'] = self._last_dynamic_gauges_count
-        # ANCHOR - update instead of gauges use metrics with labels - single gauge contain arr of features
-        self._stats['uncollectable'] = self._dynamic_collectable_gauges_count - \
-            self._last_dynamic_gauges_count
-        self._stats['last_update_time'] = tse
-        self._stats['time_used_to_process_metrics'] = tse-tsb
+        self._gauges['viessmann_collector_data_timestamp'].labels(request='features').set(api_ts)
+        
 
-    def get_stats(self) -> Dict[str, Any]:
-        return self._stats
 
 
 VIESSSMANN_METRICS = ViessmannMetrics()

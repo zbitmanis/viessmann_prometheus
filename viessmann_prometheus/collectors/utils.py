@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from .specs import FeatureSpecs
 
@@ -38,3 +39,15 @@ def now_ts() -> int:
     Returns current timestamp
     """
     return int(time.time())
+
+
+def iso_to_unix(iso: str, local_tz: bool = True) -> int:
+    """
+    Convert ISO-8601 Zulu timestamp (e.g. '2025-12-19T19:25:11.887Z') to Unix.
+    """
+    dt = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+
+    if local_tz:
+        dt = dt.astimezone()  # system local TZ
+
+    return int(dt.timestamp())
