@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Iterable, List, Tuple, Optional
+from typing import Any, Dict, List
 
 
 @dataclass
@@ -10,17 +10,18 @@ class MetricRule:
     feature: str
     metric_name: str
     metric_help: str
-    properties: list = field(default_factory=lambda: [])
-    feature_labels: list = field(default_factory=lambda: [])
+    properties: List[Dict[str, Any]] = field(default_factory=lambda: [])
+    feature_labels: List[str] = field(default_factory=lambda: [])
     include_feature_label: bool = True
+    feature_idx: int = -1
     enabled: bool = False
     running: bool = False
     unit: str = ''
     data_key: str = 'value'
 
-    def to_dict(self) -> dict:
-        result: dict = {};
-        
+    def to_dict(self) -> Dict[str, Any]:
+        result: Dict[str, Any] = {}
+
         result['feature'] = self.feature
         result['metric_name'] = self.metric_name
         result['metric_help'] = self.metric_help
@@ -39,19 +40,19 @@ class MetricRule:
 class MetricConfig:
     """ Defines the static properties and schema of a Prometheus metric.
     """
-    installation: dict
+    installation: Dict[str, Any]
     features_stats_output: str
     installations_fetch: bool
-    base_labels: list
+    base_labels: List[Dict[str, str]]
     installations_fetch_period: int = 86400
     installations_last_fetch: int = 0
     update_config_file: bool = False
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """
-        Turns MetricConf to dictionary to use for generic labels values       
+        Turns MetricConf to dictionary to use for generic labels values
         """
-        result: dict = {} 
+        result: Dict[str, Any] = {}
 
         result['installation'] = self.installation
         result['features_stats_output'] = self.features_stats_output
