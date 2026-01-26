@@ -6,12 +6,18 @@ formatters:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 handlers:
-  stdout:
+  console:
     class: logging.StreamHandler
-    level: INFO
     formatter: default
     stream: ext://sys.stdout
 
 root:
   level: INFO
-  handlers: [stdout]
+  handlers: [console]
+
+loggers:
+  viessmann_prometheus.viessmann_prometheus:
+    level: DEBUG
+    handlers: [console]
+    propagate: false
+

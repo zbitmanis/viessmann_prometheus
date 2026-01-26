@@ -27,6 +27,7 @@ class MetricRule:
         result['metric_help'] = self.metric_help
         result['properties'] = self.properties
         result['feature_labels'] = self.feature_labels
+        result['feature_idx'] = self.feature_idx
         result['include_feature_label'] = self.include_feature_label
         result['enabled'] = self.enabled
         result['running'] = self.running
