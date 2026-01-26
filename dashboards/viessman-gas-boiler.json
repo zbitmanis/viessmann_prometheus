@@ -1,0 +1,3128 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "purple",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "queryType": "annotations",
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${Datasource}"
+        },
+        "enable": true,
+        "expr": "viessmann_collector_metrics_stats{type=\"uncollectable\"}>0",
+        "hide": true,
+        "iconColor": "red",
+        "name": "Annotations: Collector quality",
+        "showIn": 1,
+        "textFormat": "Viessmann feature collection error detected",
+        "titleFormat": "Uncollectable data"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${Datasource}"
+        },
+        "enable": true,
+        "expr": "(time()-viessmann_heating_collector_data_timestamp{request=\"features\", type=\"api\"})>600",
+        "filter": {
+          "exclude": true,
+          "ids": [
+            70
+          ]
+        },
+        "hide": false,
+        "iconColor": "red",
+        "name": "Annotations: Data Quality",
+        "textFormat": "Data on APi server older than 10m ",
+        "titleFormat": "Data quality"
+      }
+    ]
+  },
+  "description": "Dashboard of Viessmann Gas Buoiler exporter\nhttps://github.com/zbitmanis/viessman-prometheus",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 3,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PC38CBD92FCE41312"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "super-light-red",
+                "value": 600
+              },
+              {
+                "color": "light-yellow",
+                "value": 900
+              },
+              {
+                "color": "light-red",
+                "value": 1200
+              },
+              {
+                "color": "red",
+                "value": 1800
+              }
+            ]
+          },
+          "unit": "dthms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 60,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "time()-viessmann_heating_collector_data_timestamp{request=\"features\", type=\"api\"}\nunless \nviessmann_heating_collector_data_timestamp{request=\"features\", metric=~\".+\"}",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "API Data Age",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "time()-viessmann_heating_collector_data_timestamp{request=\"features\", type=\"collector\"}",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "editorMode": "code",
+          "expr": "time() - timestamp(viessmann_heating_collector_data_timestamp{request=\"features\",type=\"api\"})",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Viessmann API server data quality (Latest Data on API Server Age  | Collector Data Age | Prometheus Scrape Metrics Age)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "super-light-green",
+                "value": 10
+              },
+              {
+                "color": "super-light-green",
+                "value": 20
+              },
+              {
+                "color": "dark-green",
+                "value": 25
+              },
+              {
+                "color": "#EAB839",
+                "value": 29
+              },
+              {
+                "color": "super-light-red",
+                "value": 31
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 2
+      },
+      "id": 5,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_environment_temperature_outside\nor \nviessmann_sensors_temperature_out",
+          "format": "heatmap",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{label_name}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Outside temperature",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "semi-dark-blue",
+                "value": -10
+              },
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "blue",
+                "value": 5
+              },
+              {
+                "color": "super-light-green",
+                "value": 10
+              },
+              {
+                "color": "light-green",
+                "value": 15
+              },
+              {
+                "color": "green",
+                "value": 20
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 25
+              },
+              {
+                "color": "#EAB839",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 2
+      },
+      "id": 46,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_environment_temperature_outside\nor \nviessmann_sensors_temperature_out",
+          "interval": "",
+          "legendFormat": "outside temperature",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Outside Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PC38CBD92FCE41312"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 5
+              },
+              {
+                "color": "super-light-green",
+                "value": 10
+              },
+              {
+                "color": "#EAB839",
+                "value": 15
+              }
+            ]
+          },
+          "unit": "m3"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 47,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_energy_gas_consumption_cbm{period=\"day\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Todays gas consumption",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 5
+              },
+              {
+                "color": "super-light-green",
+                "value": 10
+              },
+              {
+                "color": "#EAB839",
+                "value": 15
+              }
+            ]
+          },
+          "unit": "m3"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 18,
+        "x": 6,
+        "y": 8
+      },
+      "id": 63,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "timezone": [
+          ""
+        ],
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"dhw\"}\nor\nviessmann_heating_gas_consumption_cbm{period=\"day\", feature=\"dhw\"})",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "max(viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"heating\"}\nor\nviessmann_heating_gas_consumption_cbm{period=\"day\", feature=\"heating\"})",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by () (\n\n    viessmann_heating_energy_gas_consumption_cbm{period=\"day\"}\n    or\n    viessmann_heating_gas_consumption_cbm{period=\"day\"}\n)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Gas consumption daily",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 5
+              },
+              {
+                "color": "super-light-green",
+                "value": 10
+              },
+              {
+                "color": "#EAB839",
+                "value": 15
+              }
+            ]
+          },
+          "unit": "m3"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 18,
+        "x": 6,
+        "y": 12
+      },
+      "id": 7,
+      "interval": "1d",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": [
+          ""
+        ],
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max_over_time(\n    viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"dhw\"}[1d]\n    )\n\nor \nmax_over_time(\n    viessmann_heating_gas_consumption_cbm{period=\"day\", feature=\"dhw\"}[1d]\n    )\n",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "max_over_time(viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"heating\"}[1d])\nor \nmax_over_time(viessmann_heating_gas_consumption_cbm{period=\"day\", feature=\"heating\"}[1d])",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by () (\n  max_over_time(\n    viessmann_heating_energy_gas_consumption_cbm{period=\"day\"}[1d]\n  )\n  or \n  max_over_time(\n    viessmann_heating_gas_consumption_cbm{period=\"day\"}[1d]\n  )\n)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Gas consumption daily (summary for previous days)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              },
+              {
+                "color": "super-light-green",
+                "value": 200
+              },
+              {
+                "color": "#EAB839",
+                "value": 300
+              }
+            ]
+          },
+          "unit": "m3"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 17
+      },
+      "id": 64,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"month\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"month\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_energy_gas_consumption_cbm{period=\"month\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Monthly  gas consumption",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              },
+              {
+                "color": "super-light-green",
+                "value": 200
+              },
+              {
+                "color": "#EAB839",
+                "value": 300
+              }
+            ]
+          },
+          "unit": "m3"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 17
+      },
+      "id": 65,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"year\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"year\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_energy_gas_consumption_cbm{period=\"year\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Yearly  gas consumption",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PC38CBD92FCE41312"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0.5
+              },
+              {
+                "color": "super-light-green",
+                "value": 0.75
+              },
+              {
+                "color": "#EAB839",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 21
+      },
+      "id": 48,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"day\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"day\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_energy_power_consumption_kwh{period=\"day\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Todays electricity consumption",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "super-light-green",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.75
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "super-light-orange",
+                "value": 1.5
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 21
+      },
+      "id": 49,
+      "interval": "1d",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max_over_time(viessmann_heating_power_consumption_kwh{period=\"day\", feature=\"dhw\"}[1d])",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "max_over_time(viessmann_heating_power_consumption_kwh{period=\"day\", feature=\"heating\"}[1d])",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by () (\n  max_over_time(\n    viessmann_heating_power_consumption_kwh{period=\"day\"}[1d]\n  )\n)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Electricity consumption daily (summary for previous days)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 25
+              },
+              {
+                "color": "super-light-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 66,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"month\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"month\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_energy_power_consumption_kwh{period=\"month\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Monthly electricity consumption",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 25
+              },
+              {
+                "color": "super-light-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 67,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_power_consumption_kwh{period=\"year\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_power_consumption_kwh{period=\"year\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_power_consumption_kwh{period=\"year\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Yearly electricity consumption",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PC38CBD92FCE41312"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 50
+              },
+              {
+                "color": "super-light-green",
+                "value": 100
+              },
+              {
+                "color": "#EAB839",
+                "value": 150
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 31
+      },
+      "id": 68,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_production_kwh{period=\"day\", feature=\"dhw\"}",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "C",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_energy_production_kwh{period=\"day\", feature=\"heating\"}",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PC38CBD92FCE41312"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(viessmann_heating_energy_production_kwh{period=\"day\"})",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "B",
+          "useBackend": false
+        }
+      ],
+      "title": "Todays Viessmann heating production summary (kWh)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "stepBefore",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 50
+              },
+              {
+                "color": "super-light-green",
+                "value": 100
+              },
+              {
+                "color": "#EAB839",
+                "value": 150
+              }
+            ]
+          },
+          "unit": "kwatth"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 31
+      },
+      "id": 69,
+      "interval": "1d",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max(max_over_time(viessmann_heating_energy_production_kwh{period=\"day\", feature=\"dhw\"}[1d])\nor \nmax_over_time(viessmann_heating_production_consumption_kwh{period=\"day\", feature=\"dhw\"}[1d]))\n",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "max(max_over_time(viessmann_heating_energy_production_kwh{period=\"day\", feature=\"heating\"}[1d]) \n    or \n    max_over_time(viessmann_heating_production_consumption_kwh{period=\"day\", feature=\"heating\"}[1d]) \n    )",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum by () (\n  max_over_time(\n    viessmann_heating_energy_production_kwh{period=\"day\"}[1d]\n  )\n  or \n   max_over_time(\n    viessmann_heating_production_consumption_kwh{period=\"day\"}[1d]\n  )\n)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "total",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Viessmann heating production daily (kWh) -summary for previous days",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-red",
+                "value": null
+              },
+              {
+                "color": "super-light-red",
+                "value": 1
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 1.2
+              },
+              {
+                "color": "super-light-green",
+                "value": 1.5
+              },
+              {
+                "color": "green",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 2.5
+              }
+            ]
+          },
+          "unit": "pressurebar"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 37
+      },
+      "id": 56,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_boiler_pressure",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "dhw",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Preassure",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "-",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-red",
+                "value": null
+              },
+              {
+                "color": "super-light-red",
+                "value": 1
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 1.2
+              },
+              {
+                "color": "super-light-green",
+                "value": 1.5
+              },
+              {
+                "color": "green",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 2.5
+              }
+            ]
+          },
+          "unit": "pressurebar"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 37
+      },
+      "id": 57,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "min( viessmann_sensors_preasure  or viessmann_heating_boiler_pressure)",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "supply pressure",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Supply Pressure",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "super-light-green",
+                "value": 25
+              },
+              {
+                "color": "dark-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "super-light-red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 43
+      },
+      "id": 50,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_boiler_sensors_temperature",
+          "format": "heatmap",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{label_name}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Boiler temperature",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "blue",
+                "value": 25
+              },
+              {
+                "color": "super-light-green",
+                "value": 40
+              },
+              {
+                "color": "dark-green",
+                "value": 50
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "light-orange",
+                "value": 70
+              },
+              {
+                "color": "dark-orange",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 43
+      },
+      "id": 51,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "expr": "viessmann_heating_boiler_sensors_temperature",
+          "interval": "",
+          "legendFormat": "boiler temperature",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Boiler Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "super-light-green",
+                "value": 25
+              },
+              {
+                "color": "dark-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "super-light-red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 49
+      },
+      "id": 52,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_circuit_temperature",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Circuits temperature",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "-",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "super-light-green",
+                "value": 25
+              },
+              {
+                "color": "dark-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "super-light-red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 49
+      },
+      "id": 53,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_circuit_temperature \nor \nviessmann_heating_circuits_temperature",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "circuit: {{feature}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "Circuits Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "super-light-green",
+                "value": 25
+              },
+              {
+                "color": "dark-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "super-light-red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 55
+      },
+      "id": 54,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_dhw_sensors_temperature",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "dhw",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "DHW temperature",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "uid": "$Datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "-",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-blue",
+                "value": null
+              },
+              {
+                "color": "super-light-green",
+                "value": 25
+              },
+              {
+                "color": "dark-green",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "super-light-red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 55
+      },
+      "id": 55,
+      "options": {
+        "alertThreshold": true,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$Datasource"
+          },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "viessmann_heating_dhw_sensors_temperature",
+          "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{feature}}",
+          "range": true,
+          "refId": "A",
+          "useBackend": false
+        }
+      ],
+      "title": "DHW Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "super-light-red",
+                "value": 600
+              },
+              {
+                "color": "light-yellow",
+                "value": 900
+              },
+              {
+                "color": "light-red",
+                "value": 1200
+              },
+              {
+                "color": "red",
+                "value": 1800
+              }
+            ]
+          },
+          "unit": "dthms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 61
+      },
+      "id": 61,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "time()-viessmann_heating_collector_data_timestamp{request=\"features\"}\nunless \nviessmann_heating_collector_data_timestamp{request=\"features\", metric=~\".+\"}",
+          "instant": true,
+          "legendFormat": "{{type}}",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "expr": "time()-max(timestamp(viessmann_heating_collector_data_timestamp{request=\"features\"}))\nunless \nviessmann_heating_collector_data_timestamp{request=\"features\", metric=~\".+\"}",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "scrape",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Viessmann API server data age",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "description": "Data age on the  Viessmann API server during data fetch",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "light-yellow",
+                "value": 300
+              },
+              {
+                "color": "super-light-red",
+                "value": 600
+              },
+              {
+                "color": "light-red",
+                "value": 900
+              },
+              {
+                "color": "red",
+                "value": 1200
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 6,
+        "y": 61
+      },
+      "id": 59,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "time()-viessmann_heating_collector_data_timestamp{request=\"features\", type=\"api\"}",
+          "instant": false,
+          "legendFormat": "api data age: {{request}}-{{type}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "time()-viessmann_heating_collector_data_timestamp{request=\"features\", type=\"collector\"}",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "api data age: {{request}}-{{type}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "time() - timestamp(viessmann_heating_collector_data_timestamp{request=\"features\",type=\"api\"}) ",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "api data age: scrape",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "API Data quality",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "green",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "uncollectible"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 67
+      },
+      "id": 71,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_collector_metrics_stats{request=\"features\"}",
+          "instant": true,
+          "legendFormat": "{{type}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Viessmann API collector features stats",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${Datasource}"
+      },
+      "description": "Data age on the  Viessmann API server during data fetch",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 18,
+        "x": 6,
+        "y": 67
+      },
+      "id": 70,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "viessmann_heating_collector_metrics_stats{request=\"features\"}",
+          "instant": false,
+          "legendFormat": "metrics: {{request}}-{{type}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Collector  Data quality",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "5m",
+  "schemaVersion": 40,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "text": "etcd",
+          "value": "PC38CBD92FCE41312"
+        },
+        "includeAll": false,
+        "name": "Datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "text": "3058194",
+          "value": "3058194"
+        },
+        "datasource": "$Datasource",
+        "definition": "label_values(viessmann_heating_dhw_temperature,installation_id)",
+        "description": "",
+        "includeAll": false,
+        "label": "installation",
+        "name": "installation",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(viessmann_heating_dhw_temperature,installation_id)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "7633107126284244",
+          "value": "7633107126284244"
+        },
+        "datasource": "$Datasource",
+        "definition": "label_values(viessmann_heating_dhw_temperature,gateway_id)",
+        "includeAll": false,
+        "label": "gatewey serial",
+        "name": "gateway",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(viessmann_heating_dhw_temperature,gateway_id)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": "$Datasource",
+        "definition": "label_values(viessmann_heating_dhw_temperature,device_id)",
+        "includeAll": false,
+        "label": "device",
+        "name": "device",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(viessmann_heating_dhw_temperature,device_id)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-2d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Viessmann Gas Boiler",
+  "uid": "viessmann-exporter-dashboard",
+  "version": 1,
+  "weekStart": ""
+}
