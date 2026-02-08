@@ -65,7 +65,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PC38CBD92FCE41312"
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -129,6 +129,10 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
           "editorMode": "code",
           "exemplar": false,
           "expr": "time()-viessmann_heating_collector_data_timestamp{request=\"features\", type=\"api\"}\nunless \nviessmann_heating_collector_data_timestamp{request=\"features\", metric=~\".+\"}",
@@ -141,7 +145,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -155,7 +159,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
           "expr": "time() - timestamp(viessmann_heating_collector_data_timestamp{request=\"features\",type=\"api\"})",
@@ -385,7 +389,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PC38CBD92FCE41312"
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -443,6 +447,10 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
           "editorMode": "code",
           "exemplar": false,
           "expr": "",
@@ -454,7 +462,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -472,7 +480,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
           "expr": "viessmann_heating_energy_gas_consumption_cbm{period=\"day\", feature=\"heating\"}",
@@ -486,7 +494,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -1038,7 +1046,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PC38CBD92FCE41312"
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1096,6 +1104,10 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
           "editorMode": "code",
           "exemplar": false,
           "expr": "",
@@ -1107,7 +1119,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -1125,7 +1137,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
           "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"day\", feature=\"heating\"}",
@@ -1139,7 +1151,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -1159,7 +1171,8 @@
     },
     {
       "datasource": {
-        "uid": "$Datasource"
+        "type": "prometheus",
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1255,11 +1268,12 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$Datasource"
+            "type": "prometheus",
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max_over_time(viessmann_heating_power_consumption_kwh{period=\"day\", feature=\"dhw\"}[1d])",
+          "expr": "max_over_time(viessmann_heating_energy_power_consumption_kwh{period=\"day\", feature=\"dhw\"}[1d])\nor \nmax_over_time(viessmann_heating_power_consumption_kwh{period=\"day\", feature=\"dhw\"}[1d])",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -1269,10 +1283,11 @@
         },
         {
           "datasource": {
-            "uid": "$Datasource"
+            "type": "prometheus",
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
-          "expr": "max_over_time(viessmann_heating_power_consumption_kwh{period=\"day\", feature=\"heating\"}[1d])",
+          "expr": "max_over_time(viessmann_heating_energy_power_consumption_kwh{period=\"day\", feature=\"heating\"}[1d])\nor \nmax_over_time(viessmann_heating_power_consumption_kwh{period=\"day\", feature=\"heating\"}[1d])",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -1284,10 +1299,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "$Datasource"
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by () (\n  max_over_time(\n    viessmann_heating_power_consumption_kwh{period=\"day\"}[1d]\n  )\n)",
+          "expr": "sum by () (\n  max_over_time(\n    viessmann_heating_energy_power_consumption_kwh{period=\"day\"}[1d]\n  )\n) or \nsum by () (\n  max_over_time(\n    viessmann_heating_power_consumption_kwh{period=\"day\"}[1d]\n  )\n)",
           "hide": false,
           "instant": false,
           "legendFormat": "total",
@@ -1504,7 +1519,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "viessmann_heating_power_consumption_kwh{period=\"year\", feature=\"dhw\"}",
+          "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"year\", feature=\"dhw\"}\nor\nviessmann_heating_power_consumption_kwh{period=\"year\", feature=\"dhw\"}\n",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1521,7 +1536,7 @@
             "uid": "${Datasource}"
           },
           "editorMode": "code",
-          "expr": "viessmann_heating_power_consumption_kwh{period=\"year\", feature=\"heating\"}",
+          "expr": "viessmann_heating_energy_power_consumption_kwh{period=\"year\", feature=\"heating\"}\nor\nviessmann_heating_power_consumption_kwh{period=\"year\", feature=\"heating\"}",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -1536,7 +1551,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum(viessmann_heating_power_consumption_kwh{period=\"year\"})",
+          "expr": "sum(viessmann_heating_energy_power_consumption_kwh{period=\"year\"})\nor \nsum(viessmann_heating_power_consumption_kwh{period=\"year\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1553,7 +1568,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PC38CBD92FCE41312"
+        "uid": "${Datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1611,6 +1626,10 @@
       "pluginVersion": "11.5.2",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${Datasource}"
+          },
           "editorMode": "code",
           "exemplar": false,
           "expr": "",
@@ -1622,7 +1641,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -1640,7 +1659,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "editorMode": "code",
           "expr": "viessmann_heating_energy_production_kwh{period=\"day\", feature=\"heating\"}",
@@ -1654,7 +1673,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PC38CBD92FCE41312"
+            "uid": "${Datasource}"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -3040,10 +3059,6 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "etcd",
-          "value": "PC38CBD92FCE41312"
-        },
         "includeAll": false,
         "name": "Datasource",
         "options": [],
@@ -3053,10 +3068,6 @@
         "type": "datasource"
       },
       {
-        "current": {
-          "text": "3058194",
-          "value": "3058194"
-        },
         "datasource": "$Datasource",
         "definition": "label_values(viessmann_heating_dhw_temperature,installation_id)",
         "description": "",
@@ -3074,14 +3085,10 @@
         "type": "query"
       },
       {
-        "current": {
-          "text": "7633107126284244",
-          "value": "7633107126284244"
-        },
         "datasource": "$Datasource",
         "definition": "label_values(viessmann_heating_dhw_temperature,gateway_id)",
         "includeAll": false,
-        "label": "gatewey serial",
+        "label": "gateway serial",
         "name": "gateway",
         "options": [],
         "query": {
@@ -3116,7 +3123,7 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-7d",
     "to": "now"
   },
   "timepicker": {},

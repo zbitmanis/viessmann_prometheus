@@ -2,7 +2,6 @@
 FastAPI App to Expose Viessmann OAuth2 Metrics for Prometheus
 """
 
-import sys
 import os
 import asyncio
 import logging
@@ -168,16 +167,16 @@ async def lifespan(viessmann_prometheus: FastAPI):
     except asyncio.CancelledError:
         pass
 
-viessmann_prometheus = FastAPI(title="Viessmann Exporter", lifespan=lifespan)
+app = FastAPI(title="Viessmann Exporter", lifespan=lifespan)
 
 
 
-@viessmann_prometheus.get("/health")
+@app.get("/health")
 def health():
     return PlainTextResponse("ok", status_code=200)
 
 
-@viessmann_prometheus.get(LOGIN_URL)
+@app.get(LOGIN_URL)
 def login():
     """
     Endpoint for browser-based login to Viessmann developer.
@@ -190,7 +189,7 @@ def login():
     return RedirectResponse(url, status_code=302)
 
 
-@viessmann_prometheus.get(CALLBACK_URL)
+@app.get(CALLBACK_URL)
 async def callback(
     code: Optional[str] = None,
     state: Optional[str] = None,
@@ -221,7 +220,7 @@ async def callback(
 
 
 #ANCHOR - TBD status should be adjusted for status (success||fail) urls
-@viessmann_prometheus.post(REFRESH_ACCESS_URL)
+@app.post(REFRESH_ACCESS_URL)
 async def refresh():
     """  Endpoint to iniitate access token refresh
     """
@@ -233,7 +232,7 @@ async def refresh():
 
 
 # ---- Debug routes (without sensitive information) ----
-@viessmann_prometheus.get(DEBUG_STATUS_URL)
+@app.get(DEBUG_STATUS_URL)
 def debug_status():
     """
         Endpoint to show latest status of the token
@@ -250,13 +249,13 @@ def debug_status():
     }
 
 
-@viessmann_prometheus.get(DEBUG_RAW_URL)
+@app.get(DEBUG_RAW_URL)
 def debug_raw():
     # Endpoint for debuging purpose
     return service.token_store.load()
 
 
-@viessmann_prometheus.get(SUCCESS_URL)
+@app.get(SUCCESS_URL)
 def viessmann_success():
     """ Generic endpoint to show OAuth2 Login status """
     return HTMLResponse(
@@ -266,7 +265,7 @@ def viessmann_success():
     )
 
 
-@viessmann_prometheus.get(FAIL_URL)
+@app.get(FAIL_URL)
 def viessmann_fail(error: str = "", desc: str = ""):
     """ Generic endpoint to show OAuth2 Login status """
     # Error page to share error text.
@@ -277,7 +276,7 @@ def viessmann_fail(error: str = "", desc: str = ""):
         status_code=200,
     )
 
-@viessmann_prometheus.get(DEBUG_ROUTES_URL)
+@app.get(DEBUG_ROUTES_URL)
 def show_routes():
     out = []
     for r in viessmann_prometheus.routes:
@@ -285,12 +284,12 @@ def show_routes():
     return JSONResponse(out)
 
 
-@viessmann_prometheus.get(DEBUG_CONFIG_URL)
+@app.get(DEBUG_CONFIG_URL)
 def get_config() :
     return JSONResponse(viessmann_prometheus.state.config)
 
 
-@viessmann_prometheus.get(METRICS_URL)
+@app.get(METRICS_URL)
 def metrics() :
     """
     return latest metrics collected by poll_loop function

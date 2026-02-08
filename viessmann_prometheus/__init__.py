@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 __author__ = "Andris Zbitkovskis"
 
 
-from .viessmann_prometheus import viessmann_prometheus
+from .viessmann_prometheus import app
 
-__all__ = ["viessmann_prometheus"]
+__all__ = ["app"]
 
