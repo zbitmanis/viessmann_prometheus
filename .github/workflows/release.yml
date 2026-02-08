@@ -7,8 +7,6 @@ name: Release on pull request merge
       - next
       - beta
       - alpha
-env:
-  TEST_IMAGE_TAG: ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REGISTRY }}:${{ GITHUB_SHA }}
 
 permissions:
   contents: read  # for checkout
