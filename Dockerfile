@@ -27,7 +27,7 @@ ENV VIESSMANN_PORT=${VIESSMANN_PORT}
 ENV VIESSMANN_HOST=${VIESSMANN_HOST}
 ENV VIESSMANN_LOG_CONFIG=${VIESSMANN_LOG_CONFIG}
 
-COPY viessmann_prometheus/ /app/viessmann_prometheus
+COPY viessmann_exporter/ /app/viessmann_exporter
 
 EXPOSE ${VIESSMANN_PORT}
 
