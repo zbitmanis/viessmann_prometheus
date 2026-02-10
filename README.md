@@ -35,8 +35,8 @@ This project uses OAuth2 authentication to securely access the Viessmann API, en
 1. Clone the repository:
 
     ```bash
-    git clone git@github.com:zbitmanis/viessmann_prometheus.git
-    cd viessmann_prometheus
+    git clone git@github.com:zbitmanis/viessmann_exporter.git
+    cd viessmann_exporter
     ```
 
 2. (Optional) Create a virtual environment:
@@ -57,7 +57,7 @@ This project uses OAuth2 authentication to securely access the Viessmann API, en
 Start the Prometheus exporter server using:
 
 ```bash
-uvicorn viessmann_prometheus:viessmann_prometheus --host 0.0.0.0 --port 9000
+uvicorn viessmann_exporter:viessmann_exporter --host 0.0.0.0 --port 9000
 ```
 
 Once running, the exporter will expose metrics and callback url at:
@@ -107,7 +107,7 @@ Full list can be found in `requirements.txt`.
 ### Start Exporter
 
 ```bash
-uvicorn viessmann_prometheus:viessmann_prometheus --host 0.0.0.0 --port 9000
+uvicorn viessmann_exporter.main:app --host 0.0.0.0 --port 9000
 ```
 
 ### Prometheus Scrape Configuration

@@ -21,7 +21,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 ARG VIESSMANN_PORT=9000
 ARG VIESSMANN_HOST=0.0.0.0
-ARG VIESSMANN_LOG_CONFIG=./config/logging.yaml
+ARG VIESSMANN_LOG_CONFIG=/config/logging.yaml
 
 ENV VIESSMANN_PORT=${VIESSMANN_PORT}
 ENV VIESSMANN_HOST=${VIESSMANN_HOST}
@@ -31,7 +31,7 @@ COPY viessmann_prometheus/ /app/viessmann_prometheus
 
 EXPOSE ${VIESSMANN_PORT}
 
-CMD ["sh", "-c", "exec uvicorn viessmann_prometheus.viessmann_prometheus:app \
+CMD ["sh", "-c", "exec uvicorn viessmann_exporter.main:app \
     --host ${VIESSMANN_HOST} \
     --port ${VIESSMANN_PORT} \
     --log-config ${VIESSMANN_LOG_CONFIG}"]

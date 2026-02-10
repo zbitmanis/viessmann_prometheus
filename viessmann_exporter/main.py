@@ -16,8 +16,8 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from typing import Optional
 
-from viessmann_prometheus.collectors import VIESSSMANN_METRICS, ViessmannMetricsService 
-from viessmann_prometheus.viessmann import TokenStore, ViessmannOAuthService, ViessmannClient
+from viessmann_exporter.collectors import VIESSSMANN_METRICS, ViessmannMetricsService 
+from viessmann_exporter.viessmann import TokenStore, ViessmannOAuthService, ViessmannClient
 from .logging_config import setup_logging
 
 AUTHORIZE_URL = "https://iam.viessmann-climatesolutions.com/idp/v3/authorize"
